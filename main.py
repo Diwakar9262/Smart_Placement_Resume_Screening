@@ -1,4 +1,10 @@
-num1 = int(input("Enter first number: "))
-num2 = int(input("Enter second number: "))
+def welcome(name):
+    print("=" * 50)
+    print(f"Welcome {name}")
+    print("Smart Placement & Resume Screening Engine")
+    print("=" * 50)
 
-print(num1 + num2)
+
+student_name = input("Enter your name: ")
+
+welcome(student_name)
