@@ -1,10 +1,8 @@
-def welcome(name):
-    print("=" * 50)
-    print(f"Welcome {name}")
-    print("Smart Placement & Resume Screening Engine")
-    print("=" * 50)
+from src.models.candidate import Candidate
 
-
-student_name = input("Enter your name: ")
-
-welcome(student_name)
+student1 = Candidate(
+    "Diwakar",
+    19,
+    ["python", "c++", "Git"]
+)
+student1.display_info()
