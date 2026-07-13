@@ -12,6 +12,8 @@ class ResumeService:
                 score += 10
             elif skill.lower() == "c++":
                 score += 15
+            elif skill.lower() == "c":
+                score += 20            
         return score 
     def check_eligibility(self, candidate):
         score = self.calculate_resume_score(candidate)
