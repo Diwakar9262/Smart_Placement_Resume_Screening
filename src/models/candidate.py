@@ -9,3 +9,7 @@ class Candidate:
         print("Candidate Name = ", self.name)
         print("Age = ", self.age)
         print("Skills = ", self.skills)
+
+    def calculate_score(self):
+        score = len(self.skills) *10
+        return score
