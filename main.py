@@ -7,10 +7,29 @@ student1 = Candidate(
     19,
     ["python", "c++", "Git"]
 )
-student1.display_info()
-print("Candidate Score =", student1.calculate_score())
+student2 = Candidate(
+    "Rahul",
+    20,
+    ["Python"]
+)
+
+student3 = Candidate(
+    "Amit",
+    21,
+    ["Python", "Git", "SQL", "Excel"]
+)
+
+students = [
+    student1,
+    student2,
+    student3
+]
 
 service = ResumeService()
-print("Total skills = ", service.count_skills(student1))
-print("Total Resume Score = ",service.calculate_resume_score(student1))
-print("Eligibility = ",service.check_eligibility(student1))
+
+for student in students:
+    student.display_info()
+    print("Total Skills =", service.count_skills(student))
+    print("Resume Score =", service.calculate_resume_score(student))
+    print("Eligibility =", service.check_eligibility(student))
+    print("-" * 30)
