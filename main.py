@@ -1,31 +1,35 @@
 from src.models.candidate import Candidate
 from src.services.resume_service import ResumeService
 
+def create_candidate():
 
-student1 = Candidate(
-    "Diwakar",
-    19,
-    ["python", "c++", "Git"]
-)
-student2 = Candidate(
-    "Rahul",
-    20,
-    ["Python"]
-)
+    name = input("Enter Candidate Name : ")
 
-student3 = Candidate(
-    "Amit",
-    21,
-    ["Python", "Git", "SQL", "Excel"]
-)
+    age = int(input("Enter Age : "))
+
+    total_skills = int(input("How many skills? "))
+
+    skills = []
+
+    for i in range(total_skills):
+
+        skill = input(f"Skill {i+1} : ")
+
+        skills.append(skill)
+
+    return Candidate(name, age, skills)
+
+student1 = create_candidate()
+
+student2 = create_candidate()
+
+student3 = create_candidate()
 
 students = [
     student1,
     student2,
     student3
 ]
-
-service = ResumeService()
 
 for student in students:
     student.display_info()
