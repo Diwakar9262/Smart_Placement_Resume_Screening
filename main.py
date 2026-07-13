@@ -19,18 +19,14 @@ def create_candidate():
 
     return Candidate(name, age, skills)
 
-student1 = create_candidate()
 
-student2 = create_candidate()
+students = []
 
-student3 = create_candidate()
+total = int(input("How many candidates? "))
 
-students = [
-    student1,
-    student2,
-    student3
-]
-
+for i in range(total):
+    students.append(create_candidate())
+service = ResumeService()
 for student in students:
     student.display_info()
     print("Total Skills =", service.count_skills(student))
