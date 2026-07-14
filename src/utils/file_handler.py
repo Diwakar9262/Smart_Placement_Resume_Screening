@@ -1,4 +1,6 @@
 import json
+from src.models.candidate import Candidate
+
 
 def save_candidates(candidate_list):
 
@@ -9,3 +11,22 @@ def save_candidates(candidate_list):
 
     with open("data/candidates.json", "w") as file:
         json.dump(data, file, indent=4)
+def load_candidates():
+
+    with open("data/candidates.json", "r") as file:
+
+        data = json.load(file)
+
+    students = []
+
+    for item in data:
+
+        candidate = Candidate(
+            item["name"],
+            item["age"],
+            item["skills"]
+        )
+
+        students.append(candidate)
+
+    return students
