@@ -63,6 +63,22 @@ def delete_candidate():
             print("Candidate Deleted Successfully!")
             return
     print("Candidate Not Found!")
+def update_candidate():
+    name = input("Enter Candidate Name : ")
+    for student in students:
+        if student.name.lower() == name.lower():
+            student.age = int(input("Enter New Age : "))
+            total_skills = int(input("How many skills? "))
+            skills = []
+            for i in range(total_skills):
+
+                skill = input(f"Skill {i+1} : ")
+                skills.append(skill)
+            student.skills = skills
+            save_candidates(students)
+            print("Candidate Updated Successfully!")
+            return
+    print("Candidate Not Found!")
 while True:
 
     print("\n========== Resume Screening ==========")
@@ -70,7 +86,8 @@ while True:
     print("2. Show Candidates")
     print("3. Search Candidate")
     print("4. Delete Candidate")
-    print("5. Exit")
+    print("5. Update Candidate")
+    print("6. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -85,8 +102,11 @@ while True:
 
     elif choice == "4":
         delete_candidate()
-        
+
     elif choice == "5":
+
+        update_candidate()
+    elif choice == "6":
         print("Thank You")
         break
 

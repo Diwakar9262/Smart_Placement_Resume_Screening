@@ -1,12 +1,13 @@
 [
     {
         "name": "diwakar",
-        "age": 20,
+        "age": 21,
         "skills": [
             "c++",
             "python",
+            "git",
             "c",
-            "git"
+            "sql"
         ]
     }
 ]
