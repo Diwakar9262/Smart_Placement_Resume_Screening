@@ -13,3 +13,10 @@ class Candidate:
     def calculate_score(self):
         score = len(self.skills) *10
         return score
+    
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "age": self.age,
+            "skills": self.skills
+        }

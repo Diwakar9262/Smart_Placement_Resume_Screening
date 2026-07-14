@@ -1,6 +1,9 @@
 from src.models.candidate import Candidate
 from src.services.resume_service import ResumeService
+from src.utils.file_handler import save_candidates
 
+service = ResumeService()
+students = []
 def create_candidate():
 
     name = input("Enter Candidate Name : ")
@@ -20,20 +23,17 @@ def create_candidate():
     return Candidate(name, age, skills)
 
 
-students = []
-service = ResumeService()
 
 def add_candidate():
 
     student = create_candidate()
     students.append(student)
-
+    save_candidates(students)
     print("Candidate Added Successfully.")
 
 def show_candidates():
-
     if len(students) == 0:
-        print("No Candidate Found")
+        print("No Candidates Found!")
         return
     for student in students:
         student.display_info()
@@ -41,6 +41,7 @@ def show_candidates():
         print("Resume Score =", service.calculate_resume_score(student))
         print("Eligibility =", service.check_eligibility(student))
         print("-" * 30)
+
 while True:
 
     print("\n========== Resume Screening ==========")
