@@ -9,5 +9,35 @@
             "c",
             "sql"
         ]
+    },
+    {
+        "name": "rahul",
+        "age": 19,
+        "skills": [
+            "c++",
+            "c",
+            "git"
+        ]
+    },
+    {
+        "name": "aman",
+        "age": 22,
+        "skills": [
+            "python",
+            "c++",
+            "sql",
+            "c"
+        ]
+    },
+    {
+        "name": "neha",
+        "age": 19,
+        "skills": [
+            "c++",
+            "c",
+            "python",
+            "git",
+            "sql"
+        ]
     }
 ]
