@@ -1,6 +1,8 @@
 from src.models.candidate import Candidate
 from src.services.resume_service import ResumeService
 from src.utils.file_handler import save_candidates, load_candidates
+from src.utils.csv_handler import export_to_csv
+
 
 service = ResumeService()
 students = load_candidates()
@@ -87,7 +89,8 @@ while True:
     print("3. Search Candidate")
     print("4. Delete Candidate")
     print("5. Update Candidate")
-    print("6. Exit")
+    print("6. Export to CSV")
+    print("7. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -104,9 +107,12 @@ while True:
         delete_candidate()
 
     elif choice == "5":
-
         update_candidate()
+        
     elif choice == "6":
+        export_to_csv(students)
+
+    elif choice == "7":
         print("Thank You")
         break
 
