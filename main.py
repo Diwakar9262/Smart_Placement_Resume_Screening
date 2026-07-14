@@ -54,13 +54,23 @@ def search_candidate():
             return
 
     print("Candidate Not Found!")
+def delete_candidate():
+    name = input("Enter Candidate Name : ")
+    for student in students:
+        if student.name.lower() == name.lower():
+            students.remove(student)
+            save_candidates(students)
+            print("Candidate Deleted Successfully!")
+            return
+    print("Candidate Not Found!")
 while True:
 
     print("\n========== Resume Screening ==========")
     print("1. Add Candidate")
     print("2. Show Candidates")
     print("3. Search Candidate")
-    print("4. Exit")
+    print("4. Delete Candidate")
+    print("5. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -74,6 +84,9 @@ while True:
         search_candidate()
 
     elif choice == "4":
+        delete_candidate()
+        
+    elif choice == "5":
         print("Thank You")
         break
 

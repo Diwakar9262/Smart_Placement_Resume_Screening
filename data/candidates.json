@@ -8,14 +8,5 @@
             "c",
             "git"
         ]
-    },
-    {
-        "name": "rahul",
-        "age": 22,
-        "skills": [
-            "git",
-            "python",
-            "c++"
-        ]
     }
 ]
