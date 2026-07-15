@@ -266,6 +266,61 @@ def show_top_candidates():
         print("-" * 30)
 
         rank += 1
+def generate_report():
+
+    total = len(students)
+
+    eligible = 0
+
+    total_score = 0
+
+    highest = students[0]
+
+    lowest = students[0]
+
+    for student in students:
+
+        score = ml_service.predict_score(student)
+
+        total_score += score
+
+        if service.check_eligibility(student) == "Eligible":
+            eligible += 1
+
+        if score > ml_service.predict_score(highest):
+            highest = student
+
+        if score < ml_service.predict_score(lowest):
+            lowest = student
+
+    average = total_score / total
+
+    report = f"""
+========== ATS PROJECT REPORT ==========
+
+Total Candidates : {total}
+
+Eligible Candidates : {eligible}
+
+Not Eligible : {total - eligible}
+
+Average AI Score : {round(average,2)}
+
+Highest Score :
+{highest.name} ({round(ml_service.predict_score(highest),2)})
+
+Lowest Score :
+{lowest.name} ({round(ml_service.predict_score(lowest),2)})
+
+========================================
+"""
+    with open("project_report.txt", "w") as file:
+
+        file.write(report)
+
+    print(report)
+
+    print("Project Report Generated Successfully.")
 def search_candidate():
     name = input("Enter Candidate Name : ")
     for student in students:
@@ -321,7 +376,8 @@ while True:
     print("10. Search by Skill")
     print("11. Search by Multiple Skills")
     print("12. Top N Candidates")
-    print("13. Exit")
+    print("13. Generate Project Report")
+    print("14. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -362,6 +418,9 @@ while True:
         show_top_candidates()
         
     elif choice == "13":
+        generate_report()
+
+    elif choice == "14":
         print("Thank You")
         break
 

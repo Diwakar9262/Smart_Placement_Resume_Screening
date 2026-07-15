@@ -1,0 +1,18 @@
+
+========== ATS PROJECT REPORT ==========
+
+Total Candidates : 4
+
+Eligible Candidates : 3
+
+Not Eligible : 1
+
+Average AI Score : 75.73
+
+Highest Score :
+diwakar (85.69)
+
+Lowest Score :
+rahul (59.12)
+
+========================================
