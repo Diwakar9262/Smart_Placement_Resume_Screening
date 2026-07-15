@@ -218,6 +218,30 @@ def search_by_skill():
 
     if not found:
         print("No Candidate Found with this skill.")
+def search_multiple_skills():
+
+    skills = input("Enter Skills (comma separated): ").lower().split(",")
+
+    skills = [skill.strip() for skill in skills]
+
+    found = False
+
+    print("\nCandidates Matching All Skills\n")
+    for student in students:
+
+        student_skills = [skill.lower() for skill in student.skills]
+
+        if all(skill in student_skills for skill in skills):
+
+            print(student.name)
+            print("AI Score =", round(ml_service.predict_score(student), 2))
+            print("Skills =", student.skills)
+            print("-" * 30)
+
+            found = True
+    if not found:
+
+        print("No Candidate Found.")
 def search_candidate():
     name = input("Enter Candidate Name : ")
     for student in students:
@@ -271,7 +295,8 @@ while True:
     print("8. Dashboard Summary")
     print("9. Candidate Filters")
     print("10. Search by Skill")
-    print("11. Exit")
+    print("11. Search by Multiple Skills")
+    print("12. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -302,6 +327,8 @@ while True:
     elif choice == "10":
         search_by_skill()
     elif choice == "11":
+        search_multiple_skills()
+    elif choice == "12":
         print("Thank You")
         break
 
