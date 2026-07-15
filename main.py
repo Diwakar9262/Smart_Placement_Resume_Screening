@@ -2,9 +2,10 @@ from src.models.candidate import Candidate
 from src.services.resume_service import ResumeService
 from src.utils.file_handler import save_candidates, load_candidates
 from src.utils.csv_handler import export_to_csv
-
+from src.services.ml_service import MLService
 
 service = ResumeService()
+ml_service = MLService()
 students = load_candidates()
 def create_candidate():
 
@@ -39,6 +40,7 @@ def show_candidates():
         student.display_info()
         print("Total Skills =", service.count_skills(student))
         print("Resume Score =", service.calculate_resume_score(student))
+        print("AI Resume Score =", ml_service.predict_score(student))
         print("Eligibility =", service.check_eligibility(student))
         print("-" * 30)
 def search_candidate():
