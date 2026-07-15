@@ -1,5 +1,5 @@
-Name,Age,Skills
-diwakar,21,"c++, python, git, c, sql"
-rahul,19,"c++, c, git"
-aman,22,"python, c++, sql, c"
-neha,19,"c++, c, python, git, sql"
+Name,Age,Skills,Education,Experience
+DIWAKAR KUMAR,22,"C++,C,PYTHON,GIT,SQL",B.Tech,1
+RAHUL KUMAR ,22,"C++,C,PYTHON",B.Tech,0
+DILIP KUMAR,22,"C++,C,PYTHON",B.Tech,0
+PRIYA KUMARI,22,"C++,C,PYTHON,GIT,SQL",B.Tech,0
