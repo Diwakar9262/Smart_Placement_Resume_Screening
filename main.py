@@ -41,6 +41,8 @@ def show_candidates():
         print("Total Skills =", service.count_skills(student))
         print("Resume Score =", service.calculate_resume_score(student))
         print("AI Resume Score =", ml_service.predict_score(student))
+        print("Skill Match =", service.calculate_skill_match(student), "%")
+        print("Missing Skills =", service.missing_skills(student))
         print("Eligibility =", service.check_eligibility(student))
         print("-" * 30)
 def show_ranking():
@@ -136,7 +138,7 @@ while True:
 
     elif choice == "7":
         show_ranking()
-        
+
     elif choice == "8":
         print("Thank You")
         break
