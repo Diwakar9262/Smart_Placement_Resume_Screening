@@ -43,6 +43,25 @@ def show_candidates():
         print("AI Resume Score =", ml_service.predict_score(student))
         print("Eligibility =", service.check_eligibility(student))
         print("-" * 30)
+def show_ranking():
+
+    ranked_students = sorted(
+        students,
+        key=lambda student: ml_service.predict_score(student),
+        reverse=True
+    )
+
+    print("\n========== Candidate Ranking ==========")
+
+    rank = 1
+
+    for student in ranked_students:
+
+        print(f"{rank}. {student.name}")
+        print("AI Resume Score =", ml_service.predict_score(student))
+        print("-" * 30)
+
+        rank += 1
 def search_candidate():
     name = input("Enter Candidate Name : ")
     for student in students:
@@ -92,7 +111,8 @@ while True:
     print("4. Delete Candidate")
     print("5. Update Candidate")
     print("6. Export to CSV")
-    print("7. Exit")
+    print("7. Show Ranking")
+    print("8. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -115,6 +135,9 @@ while True:
         export_to_csv(students)
 
     elif choice == "7":
+        show_ranking()
+        
+    elif choice == "8":
         print("Thank You")
         break
 
