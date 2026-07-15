@@ -39,5 +39,16 @@
             "git",
             "sql"
         ]
+    },
+    {
+        "name": "diwakar",
+        "age": 21,
+        "skills": [
+            "c++",
+            "python",
+            "git",
+            "c",
+            "sql"
+        ]
     }
 ]

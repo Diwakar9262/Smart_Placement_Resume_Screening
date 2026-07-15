@@ -11,7 +11,15 @@ def create_candidate():
 
     name = input("Enter Candidate Name : ")
 
-    age = int(input("Enter Age : "))
+    try:
+        age = int(input("Enter Age : "))
+    except ValueError:
+        print("Please enter a valid number.")
+        return None
+
+    if age <= 0:
+        print("Invalid Age")
+        return None
 
     total_skills = int(input("How many skills? "))
 
@@ -28,8 +36,22 @@ def create_candidate():
 def add_candidate():
 
     student = create_candidate()
+
+    if student is None:
+        return
+
+    for s in students:
+
+        if s.name.lower() == student.name.lower():
+
+            print("Candidate already exists!")
+
+            return
+
     students.append(student)
+
     save_candidates(students)
+
     print("Candidate Added Successfully.")
 
 def show_candidates():
@@ -245,6 +267,12 @@ def search_multiple_skills():
 def show_top_candidates():
 
     n = int(input("How many Top Candidates? "))
+    
+    if n <= 0:
+
+        print("Invalid Number")
+
+    return
 
     ranked_students = sorted(
         students,
@@ -379,7 +407,11 @@ while True:
     print("13. Generate Project Report")
     print("14. Exit")
 
-    choice = input("Enter Choice : ")
+    try:
+        choice = input("Enter Choice : ")
+    except Exception:
+        print("Invalid Input")
+        continue
 
     if choice == "1":
         add_candidate()
@@ -416,7 +448,7 @@ while True:
 
     elif choice == "12":
         show_top_candidates()
-        
+
     elif choice == "13":
         generate_report()
 
