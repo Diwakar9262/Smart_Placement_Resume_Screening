@@ -136,6 +136,63 @@ def dashboard_summary():
     print()
 
     print("Average Skill Match :", round(average_match, 2), "%")
+def filter_candidates():
+
+    while True:
+
+        print("\n========== Candidate Filters ==========")
+        print("1. Show Eligible Candidates")
+        print("2. Show AI Score > 80")
+        print("3. Show Skill Match >= 75%")
+        print("4. Back")
+
+        choice = input("Enter Choice : ")
+
+        if choice == "1":
+
+            print("\nEligible Candidates\n")
+
+            for student in students:
+
+                if service.check_eligibility(student) == "Eligible":
+
+                    print(student.name)
+                    print("AI Score =", round(ml_service.predict_score(student), 2))
+                    print("-" * 30)
+
+        elif choice == "2":
+
+            print("\nCandidates with AI Score > 80\n")
+
+            for student in students:
+
+                score = ml_service.predict_score(student)
+
+                if score > 80:
+
+                    print(student.name)
+                    print("AI Score =", round(score, 2))
+                    print("-" * 30)
+
+        elif choice == "3":
+
+            print("\nCandidates with Skill Match >= 75%\n")
+
+            for student in students:
+
+                match = service.calculate_skill_match(student)
+
+                if match >= 75:
+
+                    print(student.name)
+                    print("Skill Match =", match, "%")
+                    print("-" * 30)
+
+        elif choice == "4":
+            break
+
+        else:
+            print("Invalid Choice")           
 def search_candidate():
     name = input("Enter Candidate Name : ")
     for student in students:
@@ -187,7 +244,8 @@ while True:
     print("6. Export to CSV")
     print("7. Show Ranking")
     print("8. Dashboard Summary")
-    print("9. Exit")
+    print("9. Candidate Filters")
+    print("10. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -214,6 +272,8 @@ while True:
     elif choice == "8":
         dashboard_summary()
     elif choice == "9":
+        filter_candidates()
+    elif choice == "10":
         print("Thank You")
         break
 
