@@ -1,4 +1,5 @@
 import pandas as pd
+import joblib
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
@@ -19,6 +20,8 @@ model = LinearRegression()
 
 model.fit(X_train, y_train)
 
+joblib.dump(model, "resume_model.pkl")
+
 y_pred = model.predict(X_test)
 
 print("Predictions:")
@@ -27,6 +30,7 @@ print(y_pred)
 mae = mean_absolute_error(y_test, y_pred)
 
 print("Mean Absolute Error =", mae)
+loaded_model = joblib.load("resume_model.pkl")
 
 new_candidate = pd.DataFrame({
     "Skills": [5],
