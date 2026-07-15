@@ -43,6 +43,14 @@ def show_candidates():
         print("AI Resume Score =", ml_service.predict_score(student))
         print("Skill Match =", service.calculate_skill_match(student), "%")
         print("Missing Skills =", service.missing_skills(student))
+        recommendations = service.recommend_skills(student)
+
+        if len(recommendations) == 0:
+            print("Recommendations = None")
+        else:
+            print("Recommendations =")
+            for item in recommendations:
+                print("-", item)
         print("Eligibility =", service.check_eligibility(student))
         print("-" * 30)
 def show_ranking():

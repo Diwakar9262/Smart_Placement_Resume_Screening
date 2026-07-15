@@ -50,5 +50,26 @@ class ResumeService:
                 missing.append(skill)
 
         return missing
+    def recommend_skills(self, candidate):
+
+        missing = self.missing_skills(candidate)
+
+        recommendations = []
+
+        for skill in missing:
+
+            if skill == "python":
+                recommendations.append("Learn Python Fundamentals")
+
+            elif skill == "sql":
+                recommendations.append("Learn SQL Basics")
+
+            elif skill == "git":
+                recommendations.append("Practice Git & GitHub")
+
+            elif skill == "c++":
+                recommendations.append("Improve C++ Programming")
+
+        return recommendations
     
 
