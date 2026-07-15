@@ -242,6 +242,30 @@ def search_multiple_skills():
     if not found:
 
         print("No Candidate Found.")
+def show_top_candidates():
+
+    n = int(input("How many Top Candidates? "))
+
+    ranked_students = sorted(
+        students,
+        key=lambda student: ml_service.predict_score(student),
+        reverse=True
+    )
+
+    print("\n========== Top Candidates ==========\n")
+    rank = 1
+
+    for student in ranked_students[:n]:
+
+        print(f"{rank}. {student.name}")
+
+        print("AI Score =", round(ml_service.predict_score(student), 2))
+
+        print("Skills =", student.skills)
+
+        print("-" * 30)
+
+        rank += 1
 def search_candidate():
     name = input("Enter Candidate Name : ")
     for student in students:
@@ -296,7 +320,8 @@ while True:
     print("9. Candidate Filters")
     print("10. Search by Skill")
     print("11. Search by Multiple Skills")
-    print("12. Exit")
+    print("12. Top N Candidates")
+    print("13. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -320,15 +345,23 @@ while True:
 
     elif choice == "7":
         show_ranking()
+
     elif choice == "8":
         dashboard_summary()
+
     elif choice == "9":
         filter_candidates()
+
     elif choice == "10":
         search_by_skill()
+
     elif choice == "11":
         search_multiple_skills()
+
     elif choice == "12":
+        show_top_candidates()
+        
+    elif choice == "13":
         print("Thank You")
         break
 
