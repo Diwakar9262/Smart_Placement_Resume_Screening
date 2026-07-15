@@ -72,6 +72,70 @@ def show_ranking():
         print("-" * 30)
 
         rank += 1
+def dashboard_summary():
+
+    if len(students) == 0:
+        print("No Candidates Found!")
+        return
+    total = len(students)
+    eligible = 0
+
+    for student in students:
+
+        if service.check_eligibility(student) == "Eligible":
+            eligible += 1
+
+        not_eligible = total - eligible
+    total_ai = 0
+
+    for student in students:
+
+        total_ai += ml_service.predict_score(student)
+
+    average_ai = total_ai / total
+    highest = max(
+        students,
+        key=lambda student: ml_service.predict_score(student)
+    )
+
+    lowest = min(
+        students,
+        key=lambda student: ml_service.predict_score(student)
+    )
+    total_match = 0
+
+    for student in students:
+
+        total_match += service.calculate_skill_match(student)
+
+    average_match = total_match / total
+    print("\n========== Dashboard Summary ==========")
+
+    print("Total Candidates :", total)
+
+    print("Eligible Candidates :", eligible)
+
+    print("Not Eligible :", not_eligible)
+
+    print()
+
+    print("Average AI Score :", round(average_ai, 2))
+
+    print()
+
+    print("Highest AI Score :")
+
+    print(highest.name, "-", round(ml_service.predict_score(highest), 2))
+
+    print()
+
+    print("Lowest AI Score :")
+
+    print(lowest.name, "-", round(ml_service.predict_score(lowest), 2))
+
+    print()
+
+    print("Average Skill Match :", round(average_match, 2), "%")
 def search_candidate():
     name = input("Enter Candidate Name : ")
     for student in students:
@@ -122,7 +186,8 @@ while True:
     print("5. Update Candidate")
     print("6. Export to CSV")
     print("7. Show Ranking")
-    print("8. Exit")
+    print("8. Dashboard Summary")
+    print("9. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -146,8 +211,9 @@ while True:
 
     elif choice == "7":
         show_ranking()
-
     elif choice == "8":
+        dashboard_summary()
+    elif choice == "9":
         print("Thank You")
         break
 
