@@ -1,7 +1,72 @@
 import streamlit as st
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
+import pdfplumber
 
+# -----------------------------
+# Skill Database
+# -----------------------------
+
+SKILL_DATABASE = [
+    "python",
+    "java",
+    "c",
+    "c++",
+    "sql",
+    "mysql",
+    "git",
+    "github",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "streamlit",
+    "machine learning",
+    "data structures",
+    "oop",
+    "html",
+    "css",
+    "javascript"
+]
+
+# -----------------------------
+# Resume Parser
+# -----------------------------
+
+def parse_resume(text):
+
+    lines = text.split("\n")
+
+    name = lines[0] if len(lines) > 0 else "Not Found"
+
+    education = "Not Found"
+
+    for line in lines:
+
+        if "b.tech" in line.lower():
+            education = line
+
+        elif "bca" in line.lower():
+            education = line
+
+        elif "mca" in line.lower():
+            education = line
+
+    found_skills = []
+
+    lower_text = text.lower()
+
+    for skill in SKILL_DATABASE:
+
+        if skill in lower_text:
+            found_skills.append(skill)
+
+    score = len(found_skills) * 5
+
+    if score > 100:
+        score = 100
+
+    return name, education, found_skills, score
 # -----------------------------
 # Project Paths
 # -----------------------------
@@ -174,6 +239,8 @@ elif menu == "📋 View Candidates":
     else:
 
         st.warning("No Candidate Data Found.")
+
+
 elif menu == "🔍 Search Candidate":
 
     st.header("🔍 Search Candidate")
@@ -229,3 +296,148 @@ elif menu == "🗑 Delete Candidate":
     else:
 
         st.warning("No Candidate Data Found.")
+
+elif menu == "🏆 Ranking":
+
+    st.header("🏆 Candidate Ranking")
+
+    def calculate_score(row):
+
+        skills = str(row["Skills"]).split(",")
+
+        skill_score = len(skills) * 10
+
+        experience_score = row["Experience"] * 5
+
+        return skill_score + experience_score
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        df["Score"] = df.apply(calculate_score, axis=1)
+
+        df = df.sort_values(
+            by="Score",
+            ascending=False
+        )
+
+        df.insert(
+            0,
+            "Rank",
+            range(1, len(df)+1)
+        )
+
+        st.dataframe(
+            df,
+            width="stretch"
+        )
+
+    else:
+
+        st.warning("No Candidate Data Found.")
+
+elif menu == "📊 Analytics":
+
+    st.header("📊 Analytics Dashboard")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        total_candidates = len(df)
+
+        avg_age = round(df["Age"].mean(), 1)
+
+        avg_experience = round(df["Experience"].mean(), 1)
+
+        st.metric("Total Candidates", total_candidates)
+
+        st.metric("Average Age", avg_age)
+
+        st.metric("Average Experience", avg_experience)
+        education_count = df["Education"].value_counts()
+
+        fig, ax = plt.subplots()
+
+        ax.bar(
+            education_count.index,
+            education_count.values
+        )
+
+        ax.set_title("Education Distribution")
+
+        st.pyplot(fig)
+        experience_count = df["Experience"].value_counts()
+
+        fig2, ax2 = plt.subplots()
+
+        ax2.bar(
+            experience_count.index.astype(str),
+            experience_count.values
+        )
+
+        ax2.set_title("Experience Distribution")
+
+        st.pyplot(fig2)
+
+    else:
+
+        st.warning("No Candidate Data Found.")
+elif menu == "📤 Upload Resume":
+
+    st.header("📤 Upload Resume")
+
+    uploaded_file = st.file_uploader(
+        "Choose Resume",
+        type=["pdf"]
+    )
+
+    if uploaded_file is not None:
+
+        upload_folder = "uploads"
+
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder)
+
+        save_path = os.path.join(
+            upload_folder,
+            uploaded_file.name
+        )
+
+        with open(save_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        st.success("Resume Uploaded Successfully ✅")
+
+        st.subheader("Extracted Resume Text")
+
+        text = ""
+
+        with pdfplumber.open(save_path) as pdf:
+
+            for page in pdf.pages:
+
+                page_text = page.extract_text()
+
+                if page_text:
+                    text += page_text + "\n"
+
+        st.text_area(
+            "Resume Content",
+            text,
+            height=400
+        )
+        name, education, skills, score = parse_resume(text)
+
+        st.divider()
+
+        st.subheader("AI Resume Analysis")
+
+        st.write("👤 Name :", name)
+
+        st.write("🎓 Education :", education)
+
+        st.write("💻 Skills :", ", ".join(skills))
+
+        st.write("⭐ Resume Score :", score, "/100")
