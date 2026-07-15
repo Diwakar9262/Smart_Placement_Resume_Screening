@@ -192,7 +192,32 @@ def filter_candidates():
             break
 
         else:
-            print("Invalid Choice")           
+            print("Invalid Choice")
+def search_by_skill():
+
+    skill_name = input("Enter Skill : ").lower()
+
+    found = False
+
+    print("\nCandidates with", skill_name.upper(), "Skill\n")
+
+    for student in students:
+
+        for skill in student.skills:
+
+            if skill.lower() == skill_name:
+
+                print(student.name)
+                print("AI Score =", round(ml_service.predict_score(student), 2))
+                print("Skills =", student.skills)
+                print("-" * 30)
+
+                found = True
+
+                break
+
+    if not found:
+        print("No Candidate Found with this skill.")
 def search_candidate():
     name = input("Enter Candidate Name : ")
     for student in students:
@@ -245,7 +270,8 @@ while True:
     print("7. Show Ranking")
     print("8. Dashboard Summary")
     print("9. Candidate Filters")
-    print("10. Exit")
+    print("10. Search by Skill")
+    print("11. Exit")
 
     choice = input("Enter Choice : ")
 
@@ -274,6 +300,8 @@ while True:
     elif choice == "9":
         filter_candidates()
     elif choice == "10":
+        search_by_skill()
+    elif choice == "11":
         print("Thank You")
         break
 
