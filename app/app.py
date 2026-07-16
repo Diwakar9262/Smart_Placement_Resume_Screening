@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pdfplumber
 from openpyxl import Workbook
 from reportlab.pdfgen import canvas
+from datetime import datetime
+
 
 # -----------------------------
 # Skill Database
@@ -126,6 +128,8 @@ if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
 CSV_FILE = os.path.join(DATA_DIR, "candidates.csv")
+HISTORY_FILE = os.path.join(DATA_DIR, "resume_history.csv")
+
 
 # -----------------------------
 # Streamlit Config
@@ -171,6 +175,7 @@ menu = st.sidebar.radio(
         "📥 Export Excel",
         "📄 Export PDF",
         "📄 Candidate Profile",
+        "📜 Resume History",
         "📤 Upload Resume",
         "⚙ Settings"
     ]
@@ -834,7 +839,7 @@ elif menu == "📤 Upload Resume":
             f.write(uploaded_file.getbuffer())
 
         st.success("Resume Uploaded Successfully ✅")
-
+        
         st.subheader("Extracted Resume Text")
 
         text = ""
@@ -854,7 +859,38 @@ elif menu == "📤 Upload Resume":
             height=400
         )
         name, education, skills, score = parse_resume(text)
+        history = {
+            "Candidate": name,
+            "File Name": uploaded_file.name,
+            "Upload Time": datetime.now().strftime("%d-%m-%Y %H:%M")
+        }
 
+        if os.path.exists(HISTORY_FILE):
+
+            history_df = pd.read_csv(HISTORY_FILE)
+
+        else:
+
+            history_df = pd.DataFrame(
+                columns=[
+                    "Candidate",
+                    "File Name",
+                    "Upload Time"
+                ]
+            )
+
+        history_df = pd.concat(
+            [
+                history_df,
+                pd.DataFrame([history])
+            ],
+            ignore_index=True
+        )
+
+        history_df.to_csv(
+            HISTORY_FILE,
+            index=False
+        )
         st.divider()
 
         st.subheader("AI Resume Analysis")
@@ -907,3 +943,19 @@ elif menu == "📤 Upload Resume":
 
             else:
                 st.error(recommendation)
+elif menu == "📜 Resume History":
+
+    st.header("📜 Resume Upload History")
+
+    if os.path.exists(HISTORY_FILE):
+
+        history_df = pd.read_csv(HISTORY_FILE)
+
+        st.dataframe(
+            history_df,
+            width="stretch"
+        )
+
+    else:
+
+        st.warning("No Resume History Found.")
