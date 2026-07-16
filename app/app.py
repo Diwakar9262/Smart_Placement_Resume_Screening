@@ -67,6 +67,42 @@ def parse_resume(text):
         score = 100
 
     return name, education, found_skills, score
+def match_resume(job_description, resume_skills):
+
+    jd = job_description.lower()
+
+    required_skills = []
+
+    for skill in SKILL_DATABASE:
+
+        if skill in jd:
+            required_skills.append(skill)
+
+    matched = []
+
+    missing = []
+
+    for skill in required_skills:
+
+        if skill in resume_skills:
+            matched.append(skill)
+
+        else:
+            missing.append(skill)
+
+    if len(required_skills) == 0:
+
+        percentage = 0
+
+    else:
+
+        percentage = int(
+            len(matched) /
+            len(required_skills)
+            *100
+        )
+
+    return percentage, matched, missing
 # -----------------------------
 # Project Paths
 # -----------------------------
@@ -441,3 +477,29 @@ elif menu == "📤 Upload Resume":
         st.write("💻 Skills :", ", ".join(skills))
 
         st.write("⭐ Resume Score :", score, "/100")
+        st.divider()
+
+        st.subheader("💼 Job Description Matching")
+
+        job_description = st.text_area(
+            "Paste Job Description"
+        )
+
+        if st.button("Match Resume"):
+
+            percentage, matched, missing = match_resume(
+                job_description,
+                skills
+            )
+
+            st.write("✅ Matched Skills")
+
+            st.write(matched)
+
+            st.write("❌ Missing Skills")
+
+            st.write(missing)
+
+            st.progress(percentage/100)
+
+            st.success(f"Match Percentage : {percentage}%")
