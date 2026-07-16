@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import pdfplumber
 from openpyxl import Workbook
+from reportlab.pdfgen import canvas
 
 # -----------------------------
 # Skill Database
@@ -168,6 +169,7 @@ menu = st.sidebar.radio(
         "📊 Analytics",
         "📄 Project Report",
         "📥 Export Excel",
+        "📄 Export PDF",
         "📄 Candidate Profile",
         "📤 Upload Resume",
         "⚙ Settings"
@@ -682,6 +684,86 @@ elif menu == "📥 Export Excel":
                     data=file,
                     file_name="Candidates_Report.xlsx",
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+
+    else:
+
+        st.warning("No Candidate Data Found.")
+elif menu == "📄 Export PDF":
+
+    st.header("📄 Export ATS Report")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        if st.button("Generate PDF Report"):
+
+            pdf_file = os.path.join(
+                DATA_DIR,
+                "ATS_Report.pdf"
+            )
+
+            c = canvas.Canvas(pdf_file)
+
+            c.setFont("Helvetica-Bold", 18)
+            c.drawString(
+                150,
+                800,
+                "Smart Placement ATS Report"
+            )
+
+            c.setFont("Helvetica", 12)
+
+            c.drawString(
+                50,
+                770,
+                f"Total Candidates : {len(df)}"
+            )
+
+            y = 740
+
+            c.drawString(
+                50,
+                y,
+                "Candidate List"
+            )
+
+            y -= 20
+
+            for index, row in df.iterrows():
+
+                line = (
+                    f"{row['Name']} | "
+                    f"{row['Education']} | "
+                    f"{row['Experience']} Years"
+                )
+
+                c.drawString(
+                    50,
+                    y,
+                    line
+                )
+
+                y -= 20
+
+                if y < 50:
+
+                    c.showPage()
+
+                    y = 800
+
+            c.save()
+
+            st.success("✅ PDF Generated Successfully")
+
+            with open(pdf_file, "rb") as pdf:
+
+                st.download_button(
+                    label="📄 Download PDF Report",
+                    data=pdf,
+                    file_name="ATS_Report.pdf",
+                    mime="application/pdf"
                 )
 
     else:
