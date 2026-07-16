@@ -103,6 +103,16 @@ def match_resume(job_description, resume_skills):
         )
 
     return percentage, matched, missing
+def hiring_recommendation(score, match_percentage):
+
+    if score >= 80 and match_percentage >= 80:
+        return "✅ Shortlist Candidate"
+
+    elif score >= 60 and match_percentage >= 60:
+        return "🟡 Needs Improvement"
+
+    else:
+        return "❌ Reject Candidate"
 # -----------------------------
 # Project Paths
 # -----------------------------
@@ -503,3 +513,18 @@ elif menu == "📤 Upload Resume":
             st.progress(percentage/100)
 
             st.success(f"Match Percentage : {percentage}%")
+            recommendation = hiring_recommendation(
+                score,
+                percentage
+            )
+
+            st.subheader("🤖 AI Recommendation")
+
+            if "Shortlist" in recommendation:
+                st.success(recommendation)
+
+            elif "Needs" in recommendation:
+                st.warning(recommendation)
+
+            else:
+                st.error(recommendation)
