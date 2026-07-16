@@ -151,9 +151,6 @@ st.subheader("AI Powered Applicant Tracking System")
 
 st.write("Welcome to your ATS Project!")
 
-st.success("Day 35 Completed Successfully 🚀")
-
-
 # -----------------------------
 # Sidebar
 # -----------------------------
@@ -187,29 +184,125 @@ menu = st.sidebar.radio(
 
 if menu == "🏠 Dashboard":
 
-    st.header("🏠 Dashboard")
+    st.header("🏠 ATS Dashboard")
+
+    st.markdown("### Welcome to Smart Placement ATS")
        
     if os.path.exists(CSV_FILE):
 
         df = pd.read_csv(CSV_FILE)
 
-        col1, col2, col3 = st.columns(3)
+        total_candidates = len(df)
+        avg_age = round(df["Age"].mean(), 1)
+        avg_exp = round(df["Experience"].mean(), 1)
+        max_exp = df["Experience"].max()
 
-        with col1:
-            st.metric("👥 Total Candidates", len(df))
+        c1, c2, c3, c4 = st.columns(4)
 
-        with col2:
-            st.metric(
-                "🎓 Education Types",
-                df["Education"].nunique()
+        c1.metric(
+            "👥 Candidates",
+            total_candidates
+        )
+
+        c2.metric(
+            "💼 Avg Experience",
+            avg_exp
+        )
+
+        c3.metric(
+            "🎂 Avg Age",
+            avg_age
+        )
+
+        c4.metric(
+            "🏆 Highest Exp",
+            max_exp
+        )
+        st.divider()
+        left, right = st.columns(2)
+        with left:
+
+            st.subheader("🎓 Education Distribution")
+
+            fig, ax = plt.subplots()
+
+            df["Education"].value_counts().plot(
+                kind="pie",
+                autopct="%1.1f%%",
+                ax=ax
             )
 
-        with col3:
-            st.metric(
-                "💼 Average Experience",
-                round(df["Experience"].mean(), 1)
+            ax.set_ylabel("")
+
+            st.pyplot(fig)
+
+            plt.close(fig)
+        with right:
+
+            st.subheader("💼 Experience")
+
+            fig, ax = plt.subplots()
+
+            df.plot(
+                x="Name",
+                y="Experience",
+                kind="bar",
+                ax=ax,
+                legend=False
             )
 
+            ax.set_title("Candidate Experience")
+            ax.set_xlabel("Candidates")
+            ax.set_ylabel("Experience (Years)")
+
+            plt.xticks(rotation=30)
+
+            st.pyplot(fig)
+
+            plt.close(fig)
+        st.divider()
+
+        st.subheader("🆕 Recently Added Candidates")
+
+        st.dataframe(
+            df.tail(5),
+
+            width="stretch"
+
+        )
+        st.subheader("📈 Database Usage")
+
+        progress = min(
+
+            len(df) / 100,
+
+            1.0
+
+        )
+
+        st.progress(progress)
+
+        st.write(
+            f"Progress: {progress*100:.0f}%"
+        )
+
+        st.caption(
+            f"{len(df)} / 100 Candidate Target"
+        )
+        st.divider()
+
+        st.subheader("💡 Quick Insights")
+
+        st.info(f"""
+            • Total Candidates : {len(df)}
+
+            • Highest Experience : {df['Experience'].max()} Years
+
+            • Average Experience : {round(df['Experience'].mean(),1)} Years
+
+            • Education Types : {df['Education'].nunique()}
+            """
+        )
     else:
 
         st.info("No Candidate Data Available")
@@ -418,11 +511,13 @@ elif menu == "✏ Edit Candidate":
             df["Name"]
         )
 
-        row = df[df["Name"] == candidate].iloc[0]
+        row_index = df[df["Name"] == candidate].index[0]
+
+        row = df.loc[row_index]
 
         new_name = st.text_input(
             "Candidate Name",
-            row["Name"]
+            value=row["Name"]
         )
 
         new_age = st.number_input(
@@ -432,7 +527,7 @@ elif menu == "✏ Edit Candidate":
             value=int(row["Age"])
         )
 
-        education_list = [
+        education_options = [
             "B.Tech",
             "BCA",
             "MCA",
@@ -440,10 +535,12 @@ elif menu == "✏ Edit Candidate":
             "M.Tech"
         ]
 
+        current_index = education_options.index(row["Education"])
+
         new_education = st.selectbox(
             "Education",
-            education_list,
-            index=education_list.index(row["Education"])
+            education_options,
+            index=current_index
         )
 
         new_experience = st.number_input(
@@ -455,37 +552,35 @@ elif menu == "✏ Edit Candidate":
 
         new_skills = st.text_area(
             "Skills",
-            row["Skills"]
+            value=row["Skills"]
         )
 
         if st.button("Update Candidate"):
 
-            df.loc[
-                df["Name"] == candidate,
-                [
-                    "Name",
-                    "Age",
-                    "Education",
-                    "Experience",
-                    "Skills"
-                ]
-            ] = [
-                new_name,
-                new_age,
-                new_education,
-                new_experience,
-                new_skills
-            ]
+            if not new_name.strip():
 
-            df.to_csv(CSV_FILE, index=False)
+                st.error("❌ Candidate name cannot be empty.")
 
-            st.success("✅ Candidate Updated Successfully")
+            elif not new_skills.strip():
 
-            st.rerun()
+                st.error("❌ Skills cannot be empty.")
 
-    else:
+            else:
 
-        st.warning("No Candidate Data Found.")
+                df.loc[row_index, "Name"] = new_name
+                df.loc[row_index, "Age"] = new_age
+                df.loc[row_index, "Education"] = new_education
+                df.loc[row_index, "Experience"] = new_experience
+                df.loc[row_index, "Skills"] = new_skills
+
+                df.to_csv(CSV_FILE, index=False)
+
+                st.success("✅ Candidate Updated Successfully")
+
+                st.rerun()
+        else:
+
+            st.warning("No Candidate Data Found.")
 elif menu == "🏆 Ranking":
 
     st.header("🏆 Candidate Ranking")
@@ -959,3 +1054,68 @@ elif menu == "📜 Resume History":
     else:
 
         st.warning("No Resume History Found.")
+# -----------------------------
+# Settings
+# -----------------------------
+
+elif menu == "⚙ Settings":
+
+    st.header("⚙ ATS Settings")
+
+    st.subheader("Application Information")
+
+    st.write("**Project Name:** Smart Placement & Resume Screening Engine")
+    st.write("**Version:** 1.0")
+    st.write("**Developer:** Diwakar Kumar Upadhayay")
+    st.write("**Framework:** Streamlit")
+    st.write("**Language:** Python")
+
+    st.divider()
+
+    st.subheader("Theme")
+
+    st.info(
+        "Theme selection is for demonstration. "
+        "Change actual theme from Streamlit Settings."
+    )
+    st.divider()
+
+    st.subheader("Data Information")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        st.write(f"👥 Total Candidates : {len(df)}")
+
+    else:
+
+        st.write("👥 Total Candidates : 0")
+
+    if os.path.exists(HISTORY_FILE):
+
+        history_df = pd.read_csv(HISTORY_FILE)
+
+        st.write(f"📄 Uploaded Resumes : {len(history_df)}")
+
+    else:
+
+        st.write("📄 Uploaded Resumes : 0")
+
+    st.divider()
+
+    if st.button("🗑 Clear Resume History"):
+
+        if os.path.exists(HISTORY_FILE):
+
+            os.remove(HISTORY_FILE)
+
+            st.success("Resume History Cleared Successfully ✅")
+
+        else:
+
+            st.warning("Resume History Not Found.")
+
+    st.divider()
+
+    st.success("Settings Loaded Successfully ✅")
