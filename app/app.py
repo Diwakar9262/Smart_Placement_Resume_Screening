@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import pdfplumber
 
+
 # -----------------------------
 # Skill Database
 # -----------------------------
@@ -147,12 +148,6 @@ st.write("Welcome to your ATS Project!")
 
 st.success("Day 35 Completed Successfully 🚀")
 
-# Debug (Later remove these lines)
-st.write("Current Working Directory:")
-st.write(os.getcwd())
-
-st.write("CSV File Path:")
-st.write(CSV_FILE)
 
 # -----------------------------
 # Sidebar
@@ -385,48 +380,58 @@ elif menu == "🏆 Ranking":
 
 elif menu == "📊 Analytics":
 
-    st.header("📊 Analytics Dashboard")
+    st.header("📊 ATS Analytics Dashboard")
 
     if os.path.exists(CSV_FILE):
 
         df = pd.read_csv(CSV_FILE)
 
-        total_candidates = len(df)
-
+        st.metric(
+            "Total Candidates",
+            len(df)
+        )
         avg_age = round(df["Age"].mean(), 1)
 
         avg_experience = round(df["Experience"].mean(), 1)
 
-        st.metric("Total Candidates", total_candidates)
-
         st.metric("Average Age", avg_age)
 
         st.metric("Average Experience", avg_experience)
-        education_count = df["Education"].value_counts()
+
+        st.subheader("Candidate Data")
+
+        st.dataframe(
+            df,
+            width="stretch"
+        )
+
+        st.subheader("Education Distribution")
+
+        edu_counts = df["Education"].value_counts()
 
         fig, ax = plt.subplots()
 
         ax.bar(
-            education_count.index,
-            education_count.values
+            edu_counts.index,
+            edu_counts.values
         )
 
-        ax.set_title("Education Distribution")
+        plt.xticks(rotation=20)
 
         st.pyplot(fig)
-        experience_count = df["Experience"].value_counts()
+        plt.close(fig)
+
+        st.subheader("Age Distribution")
 
         fig2, ax2 = plt.subplots()
 
-        ax2.bar(
-            experience_count.index.astype(str),
-            experience_count.values
+        ax2.hist(
+            df["Age"],
+            bins=5
         )
 
-        ax2.set_title("Experience Distribution")
-
         st.pyplot(fig2)
-
+        plt.close(fig2)      
     else:
 
         st.warning("No Candidate Data Found.")
@@ -441,7 +446,7 @@ elif menu == "📤 Upload Resume":
 
     if uploaded_file is not None:
 
-        upload_folder = "uploads"
+        upload_folder = os.path.join(BASE_DIR, "uploads")
 
         if not os.path.exists(upload_folder):
             os.makedirs(upload_folder)
