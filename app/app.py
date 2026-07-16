@@ -172,6 +172,7 @@ menu = st.sidebar.radio(
         "📥 Export Excel",
         "📄 Export PDF",
         "📄 Candidate Profile",
+        "⚖ Candidate Comparison",
         "📜 Resume History",
         "📤 Upload Resume",
         "⚙ Settings"
@@ -190,12 +191,47 @@ if menu == "🏠 Dashboard":
        
     if os.path.exists(CSV_FILE):
 
-        df = pd.read_csv(CSV_FILE)
+        filtered_df = pd.read_csv(CSV_FILE)
+        st.sidebar.subheader("🔍 Dashboard Filters")
 
-        total_candidates = len(df)
-        avg_age = round(df["Age"].mean(), 1)
-        avg_exp = round(df["Experience"].mean(), 1)
-        max_exp = df["Experience"].max()
+        education_filter = st.sidebar.multiselect(
+            "Education",
+            options=filtered_df["Education"].unique(),
+            default=filtered_df["Education"].unique()
+        )
+
+        experience_filter = st.sidebar.slider(
+            "Minimum Experience",
+            0,
+            int(filtered_df["Experience"].max()),
+            0
+        )
+
+        skill_filter = st.sidebar.text_input(
+            "Search Skill"
+        )
+        filtered_df = filtered_df[
+            (filtered_df["Education"].isin(education_filter)) &
+            (filtered_df["Experience"] >= experience_filter)
+        ]
+
+        if skill_filter:
+
+            filtered_df = filtered_df[
+                filtered_df["Skills"]
+                .str.lower()
+                .str.contains(skill_filter.lower())
+            ]
+        if filtered_df.empty:
+
+            st.warning("⚠ No Candidate Found!")
+
+            st.stop()
+
+        total_candidates = len(filtered_df)
+        avg_age = round(filtered_df["Age"].mean(), 1)
+        avg_exp = round(filtered_df["Experience"].mean(), 1)
+        max_exp = filtered_df["Experience"].max()
 
         c1, c2, c3, c4 = st.columns(4)
 
@@ -218,6 +254,9 @@ if menu == "🏠 Dashboard":
             "🏆 Highest Exp",
             max_exp
         )
+        st.success(
+            f"Showing {len(filtered_df)} Candidate(s)"
+        )
         st.divider()
         left, right = st.columns(2)
         with left:
@@ -226,7 +265,7 @@ if menu == "🏠 Dashboard":
 
             fig, ax = plt.subplots()
 
-            df["Education"].value_counts().plot(
+            filtered_df["Education"].value_counts().plot(
                 kind="pie",
                 autopct="%1.1f%%",
                 ax=ax
@@ -243,7 +282,7 @@ if menu == "🏠 Dashboard":
 
             fig, ax = plt.subplots()
 
-            df.plot(
+            filtered_df.plot(
                 x="Name",
                 y="Experience",
                 kind="bar",
@@ -265,7 +304,7 @@ if menu == "🏠 Dashboard":
         st.subheader("🆕 Recently Added Candidates")
 
         st.dataframe(
-            df.tail(5),
+            filtered_df.tail(5),
 
             width="stretch"
 
@@ -274,7 +313,7 @@ if menu == "🏠 Dashboard":
 
         progress = min(
 
-            len(df) / 100,
+            len(filtered_df) / 100,
 
             1.0
 
@@ -287,26 +326,32 @@ if menu == "🏠 Dashboard":
         )
 
         st.caption(
-            f"{len(df)} / 100 Candidate Target"
+            f"{len(filtered_df)} / 100 Candidate Target"
         )
         st.divider()
 
         st.subheader("💡 Quick Insights")
 
         st.info(f"""
-            • Total Candidates : {len(df)}
+            • Total Candidates : {len(filtered_df)}
 
-            • Highest Experience : {df['Experience'].max()} Years
+            • Highest Experience : {filtered_df['Experience'].max()} Years
 
-            • Average Experience : {round(df['Experience'].mean(),1)} Years
+            • Average Experience : {round(filtered_df['Experience'].mean(),1)} Years
 
-            • Education Types : {df['Education'].nunique()}
+            • Education Types : {filtered_df['Education'].nunique()}
             """
+        )
+        st.download_button(
+            label="📥 Download Filtered CSV",
+            data=filtered_df.to_csv(index=False),
+            file_name="Filtered_Candidates.csv",
+            mime="text/csv"
         )
     else:
 
         st.info("No Candidate Data Available")
-
+        
 # -----------------------------
 # Add Candidate
 # -----------------------------
@@ -906,6 +951,151 @@ elif menu == "📄 Candidate Profile":
 
             st.success(f"{score}/100")
 
+    else:
+
+        st.warning("No Candidate Data Found.")
+elif menu == "⚖ Candidate Comparison":
+
+    st.header("⚖ Candidate Comparison")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+
+            candidate1 = st.selectbox(
+                "Candidate 1",
+                df["Name"],
+                key="c1"
+            )
+
+        with col2:
+
+            candidate2 = st.selectbox(
+                "Candidate 2",
+                df["Name"],
+                key="c2"
+            )
+        if candidate1 == candidate2:
+
+            st.warning("⚠ Please select two different candidates.")
+
+            st.stop()
+
+        row1 = df[df["Name"] == candidate1].iloc[0]
+        row2 = df[df["Name"] == candidate2].iloc[0]
+        comparison = pd.DataFrame({
+            "Feature": [
+                "Age",
+                "Education",
+                "Experience",
+                "Skills"
+            ],
+            candidate1: [
+                str(row1["Age"]),
+                row1["Education"],
+                str(row1["Experience"]),
+                row1["Skills"]
+            ],
+            candidate2: [
+                str(row2["Age"]),
+                row2["Education"],
+                str(row2["Experience"]),
+                row2["Skills"]
+            ]
+        })
+        
+        st.subheader("Comparison")
+
+        st.dataframe(
+            comparison,
+            width="stretch"
+        )
+        score1 = min(
+            len(str(row1["Skills"]).split(","))*10,
+            100
+        )
+        
+        score2 = min(
+            len(str(row2["Skills"]).split(","))*10,
+            100
+        )
+        
+        st.subheader("Resume Scores")
+        
+        c1, c2 = st.columns(2)
+        
+        c1.metric(candidate1, score1)
+        
+        c2.metric(candidate2, score2)
+        st.subheader("Recommendation")
+
+        if score1 > score2:
+
+            st.success(f"🏆 {candidate1} is the Better Candidate")
+
+        elif score2 > score1:
+
+            st.success(f"🏆 {candidate2} is the Better Candidate")
+        
+        else:
+
+            st.info("Both Candidates are Equal")
+        difference = abs(score1 - score2)
+
+        st.write(f"📌 Score Difference: {difference} points")
+
+        st.subheader("📊 Experience Comparison")
+
+        col1, col2 = st.columns(2)
+
+        col1.metric(
+            candidate1,
+            f"{row1['Experience']} Years"
+        )
+
+        col2.metric(
+            candidate2,
+            f"{row2['Experience']} Years"
+        )
+        st.subheader("🎂 Age Comparison")
+
+        col1, col2 = st.columns(2)
+
+        col1.metric(
+            candidate1,
+            f"{row1['Age']} Years"
+        )
+
+        col2.metric(
+            candidate2,
+            f"{row2['Age']} Years"
+        )
+        st.subheader("🎓 Education")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.write(f"**{candidate1}**")
+            st.write(row1["Education"])
+
+        with col2:
+            st.write(f"**{candidate2}**")
+            st.write(row2["Education"])
+        st.subheader("🛠 Skills Comparison")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.write(f"### {candidate1}")
+            st.write(row1["Skills"])
+
+        with col2:
+            st.write(f"### {candidate2}")
+            st.write(row2["Skills"])
     else:
 
         st.warning("No Candidate Data Found.")
