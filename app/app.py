@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import pdfplumber
-
+from openpyxl import Workbook
 
 # -----------------------------
 # Skill Database
@@ -163,9 +163,12 @@ menu = st.sidebar.radio(
         "📋 View Candidates",
         "🔍 Search Candidate",
         "🗑 Delete Candidate",
+        "✏ Edit Candidate",
         "🏆 Ranking",
         "📊 Analytics",
         "📄 Project Report",
+        "📥 Export Excel",
+        "📄 Candidate Profile",
         "📤 Upload Resume",
         "⚙ Settings"
     ]
@@ -178,8 +181,31 @@ menu = st.sidebar.radio(
 if menu == "🏠 Dashboard":
 
     st.header("🏠 Dashboard")
+       
+    if os.path.exists(CSV_FILE):
 
-    st.info("Welcome to Smart Placement ATS")
+        df = pd.read_csv(CSV_FILE)
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("👥 Total Candidates", len(df))
+
+        with col2:
+            st.metric(
+                "🎓 Education Types",
+                df["Education"].nunique()
+            )
+
+        with col3:
+            st.metric(
+                "💼 Average Experience",
+                round(df["Experience"].mean(), 1)
+            )
+
+    else:
+
+        st.info("No Candidate Data Available")
 
 # -----------------------------
 # Add Candidate
@@ -222,44 +248,79 @@ elif menu == "👤 Add Candidate":
 
     if submit:
 
-        new_candidate = {
-            "Name": name,
-            "Age": age,
-            "Education": education,
-            "Experience": experience,
-            "Skills": skills
-        }
+        if not name.strip():
 
-        if os.path.exists(CSV_FILE):
+            st.error("❌ Please enter candidate name.")
 
-            df = pd.read_csv(CSV_FILE)
+        elif not skills.strip():
+
+            st.error("❌ Please enter candidate skills.")
 
         else:
+            # Duplicate Candidate Check
 
-            df = pd.DataFrame(
-                columns=[
-                    "Name",
-                    "Age",
-                    "Education",
-                    "Experience",
-                    "Skills"
+            if os.path.exists(CSV_FILE):
+
+                df = pd.read_csv(CSV_FILE)
+
+                duplicate = df[
+                    df["Name"].str.lower() == name.lower()
                 ]
+
+                if not duplicate.empty:
+
+                    st.error("❌ Candidate already exists.")
+
+                    st.stop()
+
+            else:
+
+                df = pd.DataFrame(
+                    columns=[
+                        "Name",
+                        "Age",
+                        "Education",
+                        "Experience",
+                        "Skills"
+                    ]
+                )
+            new_candidate = {
+                "Name": name,
+                "Age": age,
+                "Education": education,
+                "Experience": experience,
+                "Skills": skills
+            }
+
+            if os.path.exists(CSV_FILE):
+
+                df = pd.read_csv(CSV_FILE)
+
+            else:
+
+                df = pd.DataFrame(
+                    columns=[
+                        "Name",
+                        "Age",
+                        "Education",
+                        "Experience",
+                        "Skills"
+                    ]
+                )
+
+            df = pd.concat(
+                [
+                    df,
+                    pd.DataFrame([new_candidate])
+                ],
+                ignore_index=True
             )
 
-        df = pd.concat(
-            [
-                df,
-                pd.DataFrame([new_candidate])
-            ],
-            ignore_index=True
-        )
+            df.to_csv(CSV_FILE, index=False)
 
-        # Save CSV
-        df.to_csv(CSV_FILE, index=False)
-
-        st.success("Candidate Saved Successfully ✅")
-        st.write("Rows in DataFrame:", len(df))
-        st.write(df)
+            st.success("✅ Candidate Saved Successfully")
+            st.write("Rows in DataFrame:", len(df))
+            st.write(df)
 # -----------------------------
 # View Candidates
 # -----------------------------
@@ -337,7 +398,87 @@ elif menu == "🗑 Delete Candidate":
     else:
 
         st.warning("No Candidate Data Found.")
+elif menu == "✏ Edit Candidate":
 
+    st.header("✏ Edit Candidate")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        candidate = st.selectbox(
+            "Select Candidate",
+            df["Name"]
+        )
+
+        row = df[df["Name"] == candidate].iloc[0]
+
+        new_name = st.text_input(
+            "Candidate Name",
+            row["Name"]
+        )
+
+        new_age = st.number_input(
+            "Age",
+            min_value=18,
+            max_value=60,
+            value=int(row["Age"])
+        )
+
+        education_list = [
+            "B.Tech",
+            "BCA",
+            "MCA",
+            "B.Sc",
+            "M.Tech"
+        ]
+
+        new_education = st.selectbox(
+            "Education",
+            education_list,
+            index=education_list.index(row["Education"])
+        )
+
+        new_experience = st.number_input(
+            "Experience",
+            min_value=0,
+            max_value=40,
+            value=int(row["Experience"])
+        )
+
+        new_skills = st.text_area(
+            "Skills",
+            row["Skills"]
+        )
+
+        if st.button("Update Candidate"):
+
+            df.loc[
+                df["Name"] == candidate,
+                [
+                    "Name",
+                    "Age",
+                    "Education",
+                    "Experience",
+                    "Skills"
+                ]
+            ] = [
+                new_name,
+                new_age,
+                new_education,
+                new_experience,
+                new_skills
+            ]
+
+            df.to_csv(CSV_FILE, index=False)
+
+            st.success("✅ Candidate Updated Successfully")
+
+            st.rerun()
+
+    else:
+
+        st.warning("No Candidate Data Found.")
 elif menu == "🏆 Ranking":
 
     st.header("🏆 Candidate Ranking")
@@ -432,6 +573,157 @@ elif menu == "📊 Analytics":
 
         st.pyplot(fig2)
         plt.close(fig2)      
+    else:
+
+        st.warning("No Candidate Data Found.")
+elif menu == "📄 Project Report":
+
+    st.header("📄 Smart Placement ATS Report")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        total_candidates = len(df)
+
+        avg_age = round(df["Age"].mean(), 1)
+
+        avg_experience = round(df["Experience"].mean(), 1)
+
+        highest_experience = df["Experience"].max()
+
+        lowest_experience = df["Experience"].min()
+
+        st.subheader("📊 Overall Statistics")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric("Total Candidates", total_candidates)
+
+        with col2:
+            st.metric("Average Age", avg_age)
+
+        with col3:
+            st.metric("Average Experience", avg_experience)
+
+        st.divider()
+
+        st.subheader("🎓 Education Distribution")
+
+        education = df["Education"].value_counts()
+
+        st.dataframe(
+            education.reset_index().rename(
+                columns={
+                    "index": "Education",
+                    "Education": "Count"
+                }
+            ),
+            width="stretch"
+        )
+
+        st.divider()
+
+        st.subheader("💼 Experience Summary")
+
+        st.write(f"Highest Experience : **{highest_experience} Years**")
+
+        st.write(f"Lowest Experience : **{lowest_experience} Years**")
+
+        st.divider()
+
+        st.subheader("📋 Candidate List")
+
+        st.dataframe(df, width="stretch")
+
+        st.divider()
+
+        st.success("✅ Report Generated Successfully")
+
+    else:
+
+        st.warning("No Candidate Data Found.")
+elif menu == "📥 Export Excel":
+
+    st.header("📥 Export Candidates to Excel")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        if st.button("Generate Excel File"):
+
+            workbook = Workbook()
+
+            sheet = workbook.active
+
+            sheet.title = "Candidates"
+
+            sheet.append(df.columns.tolist())
+
+            for row in df.values.tolist():
+
+                sheet.append(row)
+
+            excel_file = os.path.join(
+                DATA_DIR,
+                "Candidates_Report.xlsx"
+            )
+
+            workbook.save(excel_file)
+
+            st.success("✅ Excel File Generated Successfully")
+
+            with open(excel_file, "rb") as file:
+
+                st.download_button(
+                    label="📥 Download Excel Report",
+                    data=file,
+                    file_name="Candidates_Report.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+
+    else:
+
+        st.warning("No Candidate Data Found.")
+elif menu == "📄 Candidate Profile":
+
+    st.header("📄 Candidate Profile")
+
+    if os.path.exists(CSV_FILE):
+
+        df = pd.read_csv(CSV_FILE)
+
+        candidate = st.selectbox(
+            "Select Candidate",
+            df["Name"]
+        )
+
+        profile = df[df["Name"] == candidate]
+
+        if not profile.empty:
+
+            row = profile.iloc[0]
+
+            st.subheader("👤 Candidate Details")
+
+            st.write("**Name:**", row["Name"])
+            st.write("**Age:**", row["Age"])
+            st.write("**Education:**", row["Education"])
+            st.write("**Experience:**", row["Experience"], "Years")
+            st.write("**Skills:**", row["Skills"])
+
+            skills = str(row["Skills"]).split(",")
+
+            score = min(len(skills) * 10, 100)
+
+            st.subheader("⭐ Resume Score")
+
+            st.progress(score / 100)
+
+            st.success(f"{score}/100")
+
     else:
 
         st.warning("No Candidate Data Found.")
