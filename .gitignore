@@ -1,2 +1,6 @@
 __pycache__/
 *.pyc
+# Generated Reports
+data/Candidates_Report.xlsx
+uploads/
+*.pdf
